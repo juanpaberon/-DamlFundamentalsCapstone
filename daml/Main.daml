@@ -8,6 +8,8 @@ template NewEmployeeApplication
         employer: Party
         positionName: Text
         salary: Numeric 2
+        acceptedOfferApplicant: Bool
+        acceptedOfferEmployer: Bool
     where
         signatory newApplicant
         observer employer
@@ -19,4 +21,10 @@ template NewEmployeeApplication
             controller employer
             do create this with
                 salary = salary
+                acceptedOfferEmployer = True
+
+        choice AcceptOfferApplicant: ApplicationId
+            controller newApplicant
+            do create this with
+                acceptedOfferApplicant = True
         
