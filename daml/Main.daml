@@ -22,9 +22,19 @@ template NewEmployeeApplication
             do create this with
                 salary = salary
                 acceptedOfferEmployer = True
+                acceptedOfferApplicant = False
 
         choice AcceptOfferApplicant: ApplicationId
             controller newApplicant
             do create this with
+                acceptedOfferApplicant = True
+
+        choice CounterOfferApplicant: ApplicationId
+            with
+                salary: Numeric 2
+            controller newApplicant
+            do create this with
+                salary = salary
+                acceptedOfferEmployer = False
                 acceptedOfferApplicant = True
         

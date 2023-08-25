@@ -18,7 +18,13 @@ test = script do
             acceptedOfferApplicant = False
             acceptedOfferEmployer = False
 
-    applicationWithOffer <- submit employer do
+    application <- submit employer do
         exerciseCmd application MakeAnOffer with salary=100.0
+
+    application <- submit applicant do
+        exerciseCmd application CounterOfferApplicant with salary=120.00
+
+    application <- submit applicant do
+        exerciseCmd application AcceptOfferApplicant
         
     return ()
