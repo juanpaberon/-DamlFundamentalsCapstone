@@ -1,0 +1,22 @@
+module Test where
+
+import Daml.Script
+import Main
+
+test: Script ()
+test = script do
+
+    applicant <- allocateParty "Alice"
+    employer <- allocateParty "Boss"
+
+    application <- submit applicant do
+        createCmd NewEmployeeApplication with
+            newApplicant = applicant
+            employer = employer
+            positionName = "SWE"
+            salary = 0.0
+
+    applicationWithOffer <- submit employer do
+        exerciseCmd application MakeAnOffer with salary=100.0
+        
+    return ()
