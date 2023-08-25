@@ -43,6 +43,8 @@ template NewEmployeeApplication
             do create EmployeeAccount with
                 employee = newApplicant
                 employer = employer
+                salary = salary
+                vacationDays = 10
 
 
 type EmployeeAccountId = ContractId EmployeeAccount
@@ -51,6 +53,8 @@ template EmployeeAccount
     with
         employee: Party
         employer: Party
+        salary: Numeric 2
+        vacationDays: Int
 
     where
         signatory employer
