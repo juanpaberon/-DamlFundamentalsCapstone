@@ -37,4 +37,22 @@ template NewEmployeeApplication
                 salary = salary
                 acceptedOfferEmployer = False
                 acceptedOfferApplicant = True
+
+        choice ReviewApplication: EmployeeAccountId
+            controller employer
+            do create EmployeeAccount with
+                employee = newApplicant
+                employer = employer
+
+
+type EmployeeAccountId = ContractId EmployeeAccount
+
+template EmployeeAccount
+    with
+        employee: Party
+        employer: Party
+
+    where
+        signatory employer
+        observer employee
         

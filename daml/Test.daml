@@ -26,5 +26,8 @@ test = script do
 
     application <- submit applicant do
         exerciseCmd application AcceptOfferApplicant
+
+    employeeAccount <- submit employer do
+        exerciseCmd application ReviewApplication
         
     return ()
