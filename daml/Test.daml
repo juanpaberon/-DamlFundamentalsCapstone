@@ -29,5 +29,14 @@ test = script do
 
     employeeAccount <- submit employer do
         exerciseCmd application ReviewApplication
+
+    submitMustFail employer do
+        exerciseCmd employeeAccount ReviewVacationRequest
+
+    employeeAccount <- submit applicant do
+        exerciseCmd employeeAccount RequestVacation
+
+    employeeAccount <- submit employer do
+        exerciseCmd employeeAccount ReviewVacationRequest
         
     return ()

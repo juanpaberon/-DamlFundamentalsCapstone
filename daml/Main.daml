@@ -45,6 +45,8 @@ template NewEmployeeApplication
                 employer = employer
                 salary = salary
                 vacationDays = 10
+                onVacation = False
+                requestedVacationTime = False
 
 
 type EmployeeAccountId = ContractId EmployeeAccount
@@ -55,8 +57,23 @@ template EmployeeAccount
         employer: Party
         salary: Numeric 2
         vacationDays: Int
+        onVacation: Bool
+        requestedVacationTime: Bool
 
     where
         signatory employer
         observer employee
+
+        choice RequestVacation: EmployeeAccountId
+            controller employee
+            do create this with
+                requestedVacationTime = True
+
+        choice ReviewVacationRequest: EmployeeAccountId
+            controller employer
+            do
+                assertMsg "Employee has not requested vacations" requestedVacationTime
+                create this with
+                    requestedVacationTime = False
+                    onVacation = True
         
