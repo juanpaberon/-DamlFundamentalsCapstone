@@ -28,6 +28,20 @@ template NewEmployeeApplication
         key (employer, newApplicant): (Party, Party)
         maintainer key._2
 
+        choice EditApplicationInformation: ApplicationId
+            with
+                name: Text
+                lastName: Text
+                education: Text
+                positionName: Text
+            controller newApplicant
+            do
+                let 
+                    newPersonalInformation = PersonalInformation with
+                        ..
+                create this with
+                    applicantInformation = newPersonalInformation
+
         choice MakeAnOffer: ApplicationId
             with
                 salary: Numeric 2
