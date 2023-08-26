@@ -1,5 +1,13 @@
 module Main where
 
+
+data PersonalInformation = PersonalInformation with
+    name: Text
+    lastName: Text
+    education: Text
+        deriving(Eq, Show)
+
+
 type ApplicationId = ContractId NewEmployeeApplication
 
 template NewEmployeeApplication
@@ -8,12 +16,16 @@ template NewEmployeeApplication
         employer: Party
         positionName: Text
         salary: Numeric 2
+        applicantInformation: PersonalInformation
         acceptedOfferApplicant: Bool
         acceptedOfferEmployer: Bool
     where
         signatory newApplicant
         observer employer
         ensure positionName /= ""
+
+        key (employer, newApplicant): (Party, Party)
+        maintainer key._2
 
         choice MakeAnOffer: ApplicationId
             with
@@ -63,6 +75,9 @@ template EmployeeAccount
     where
         signatory employer
         observer employee
+
+        key (employer, employee): (Party, Party)
+        maintainer key._1
 
         choice RequestVacation: EmployeeAccountId
             controller employee

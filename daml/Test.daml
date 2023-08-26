@@ -15,6 +15,10 @@ test = script do
             employer = employer
             positionName = "SWE"
             salary = 0.0
+            applicantInformation = PersonalInformation with
+                name = "Alice"
+                lastName = "Smith"
+                education = "Master"
             acceptedOfferApplicant = False
             acceptedOfferEmployer = False
 
