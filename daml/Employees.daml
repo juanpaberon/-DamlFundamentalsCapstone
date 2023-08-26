@@ -1,0 +1,106 @@
+module Employees where
+
+data PersonalInformation = PersonalInformation with
+    name: Text
+    lastName: Text
+    education: Text
+        deriving(Eq, Show)
+
+
+type ApplicationId = ContractId NewEmployeeApplication
+
+template NewEmployeeApplication
+    with
+        newApplicant: Party
+        employer: Party
+        positionName: Text
+        salary: Numeric 2
+        applicantInformation: PersonalInformation
+        acceptedOfferApplicant: Bool
+        acceptedOfferEmployer: Bool
+    where
+        signatory newApplicant
+        observer employer
+        ensure positionName /= ""
+
+        key (employer, newApplicant): (Party, Party)
+        maintainer key._2
+
+        choice EditApplicationInformation: ApplicationId
+            with
+                name: Text
+                lastName: Text
+                education: Text
+                positionName: Text
+            controller newApplicant
+            do
+                let 
+                    newPersonalInformation = PersonalInformation with
+                        ..
+                create this with
+                    applicantInformation = newPersonalInformation
+
+        choice MakeAnOffer: ApplicationId
+            with
+                salary: Numeric 2
+            controller employer
+            do create this with
+                salary = salary
+                acceptedOfferEmployer = True
+                acceptedOfferApplicant = False
+
+        choice AcceptOfferApplicant: ApplicationId
+            controller newApplicant
+            do create this with
+                acceptedOfferApplicant = True
+
+        choice CounterOfferApplicant: ApplicationId
+            with
+                salary: Numeric 2
+            controller newApplicant
+            do create this with
+                salary = salary
+                acceptedOfferEmployer = False
+                acceptedOfferApplicant = True
+
+        choice ReviewApplication: EmployeeAccountId
+            controller employer
+            do create EmployeeAccount with
+                employee = newApplicant
+                employer = employer
+                salary = salary
+                vacationDays = 10
+                onVacation = False
+                requestedVacationTime = False
+
+
+type EmployeeAccountId = ContractId EmployeeAccount
+
+template EmployeeAccount
+    with
+        employee: Party
+        employer: Party
+        salary: Numeric 2
+        vacationDays: Int
+        onVacation: Bool
+        requestedVacationTime: Bool
+
+    where
+        signatory employer
+        observer employee
+
+        key (employer, employee): (Party, Party)
+        maintainer key._1
+
+        choice RequestVacation: EmployeeAccountId
+            controller employee
+            do create this with
+                requestedVacationTime = True
+
+        choice ReviewVacationRequest: EmployeeAccountId
+            controller employer
+            do
+                assertMsg "Employee has not requested vacations" requestedVacationTime
+                create this with
+                    requestedVacationTime = False
+                    onVacation = True

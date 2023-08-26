@@ -1,0 +1,51 @@
+module PartiesSetUp where
+
+import Daml.Script
+import Employees
+
+
+data TestParties = TestParties with
+    applicant: Party
+    oldEmployee: Party
+    employer: Party
+
+
+setupParties: Script TestParties
+setupParties = do
+
+    applicant <- allocatePartyWithHint "Alice" (PartyIdHint "applicant")
+    oldEmployee <- allocatePartyWithHint "Bob" (PartyIdHint "old employee")
+    employer <- allocatePartyWithHint "Boss" (PartyIdHint "employer")
+
+    return TestParties with
+        ..
+
+
+setupEmployeeAccount: Party-> Party -> Script EmployeeAccountId
+setupEmployeeAccount employee employer = do
+
+   submit employer do
+        createCmd EmployeeAccount with
+            employee = employee
+            employer = employer
+            salary = 80.0
+            vacationDays = 10
+            onVacation = False
+            requestedVacationTime = False
+
+
+setupApplication: Party -> Party -> Script ApplicationId
+setupApplication applicant employer = do
+
+    submit applicant do
+        createCmd NewEmployeeApplication with
+            newApplicant = applicant
+            employer = employer
+            positionName = "SWE"
+            salary = 0.0
+            applicantInformation = PersonalInformation with
+                name = "Alice"
+                lastName = "Smith"
+                education = "Master"
+            acceptedOfferApplicant = False
+            acceptedOfferEmployer = False
