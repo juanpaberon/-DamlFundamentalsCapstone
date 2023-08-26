@@ -1,7 +1,6 @@
 module Main where
 
 import Daml.Script
-import Employees
 import PartiesSetUp
 
 setup: Script ()

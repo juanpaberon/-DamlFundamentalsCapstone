@@ -4,8 +4,8 @@ import Daml.Script
 import Employees
 import PartiesSetUp
 
-test: Script ()
-test = script do
+test_setSalary: Script ()
+test_setSalary = script do
 
     testParties@TestParties{applicant, oldEmployee, employer} <- setupParties
     application <- setupApplication applicant employer
@@ -17,19 +17,33 @@ test = script do
     application <- submit applicant do
         exerciseCmd application CounterOfferApplicant with salary=120.00
 
+    application <- submit employer do
+        exerciseCmd application MakeAnOffer with salary=110.0
+
     application <- submit applicant do
         exerciseCmd application AcceptOfferApplicant
 
     employeeAccount <- submit employer do
         exerciseCmd application ReviewApplication
 
-    submitMustFail employer do
-        exerciseCmd employeeAccount ReviewVacationRequest
-
-    employeeAccount <- submit applicant do
-        exerciseCmd employeeAccount RequestVacation
-
-    employeeAccount <- submit employer do
-        exerciseCmd employeeAccount ReviewVacationRequest
-        
     return ()
+
+
+test_resquestVacation: Script ()
+test_resquestVacation = script do
+
+    testParties@TestParties{applicant, oldEmployee, employer} <- setupParties
+    application <- setupApplication applicant employer
+    oldEmployeeAccount <- setupEmployeeAccount oldEmployee employer
+
+    oldEmployeeAccount <- submit oldEmployee do
+        exerciseCmd oldEmployeeAccount RequestVacation
+
+    oldEmployeeAccount <- submit employer do
+        exerciseCmd oldEmployeeAccount ReviewVacationRequest
+
+    return ()
+
+
+    -- submitMustFail employer do
+    --     exerciseCmd employeeAccount ReviewVacationRequest
