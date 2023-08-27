@@ -32,21 +32,25 @@ test_setSalary = script do
 
 -- Auxilary function to review vacation request.
 -- If there is more than 1 employees available then the
--- vacation request is accepted
-reviewVacationRequest: Party -> EmployeeAccountId -> Script EmployeeAccountId
+-- vacation request is accepted. If there are no employees, then it returns none
+reviewVacationRequest: Party -> EmployeeAccountId -> Script (Optional EmployeeAccountId)
 reviewVacationRequest employer accountId = do
 
     availableEmployees <- queryFilter @EmployeeAccount employer (\ eAccount -> not (eAccount.onVacation))
     let numAvailableEmployees = length availableEmployees
 
-    if (numAvailableEmployees > 1) then do 
-        debug $ "Request for vacations accepted"
-        submit employer do
-            exerciseCmd accountId AcceptVacationRequest
-    else do 
-        debug $ "Request for vacations denied"
-        submit employer do
-            exerciseCmd accountId RejectVacationRequest
+    if (numAvailableEmployees == 0) then return None
+    else do
+        if (numAvailableEmployees > 1) then do 
+            debug $ "Request for vacations accepted"
+            accountId <- submit employer do
+                exerciseCmd accountId AcceptVacationRequest
+            return (Some accountId)
+        else do 
+            debug $ "Request for vacations denied"
+            accountId <- submit employer do
+                exerciseCmd accountId RejectVacationRequest
+            return (Some accountId)
 
 -- test request for vacation by employee denied
 test_resquestVacationDenied: Script ()
