@@ -99,13 +99,21 @@ template EmployeeAccount
             do create this with
                 requestedVacationTime = True
 
-        choice ReviewVacationRequest: EmployeeAccountId
+        choice AcceptVacationRequest: EmployeeAccountId
             controller employer
             do
                 assertMsg "Employee has not requested vacations" requestedVacationTime
                 create this with
                     requestedVacationTime = False
                     onVacation = True
+
+        choice RejectVacationRequest: EmployeeAccountId
+            controller employer
+            do
+                assertMsg "Employee has not requested vacations" requestedVacationTime
+                create this with
+                    requestedVacationTime = False
+                    onVacation = False
 
 -- Contract for multiple services for the employer. Right now is only to fire employees
 template EmployerServices

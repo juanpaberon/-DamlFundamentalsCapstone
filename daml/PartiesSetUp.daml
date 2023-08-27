@@ -6,7 +6,8 @@ import Employees
 
 data TestParties = TestParties with
     applicant: Party
-    oldEmployee: Party
+    oldEmployee_1: Party
+    oldEmployee_2: Party
     employer: Party
 
 
@@ -14,15 +15,17 @@ setupParties: Script TestParties
 setupParties = do
 
     applicant <- allocatePartyWithHint "Alice" (PartyIdHint "applicant")
-    oldEmployee <- allocatePartyWithHint "Bob" (PartyIdHint "old employee")
+    oldEmployee_1 <- allocatePartyWithHint "Bob" (PartyIdHint "old employee 1")
+    oldEmployee_2 <- allocatePartyWithHint "Henry" (PartyIdHint "old employee 2")
     employer <- allocatePartyWithHint "Boss" (PartyIdHint "employer")
+
 
     return TestParties with
         ..
 
 
-setupEmployeeAccount: Party-> Party -> Script EmployeeAccountId
-setupEmployeeAccount employee employer = do
+setupEmployeeAccount_1: Party-> Party -> Script EmployeeAccountId
+setupEmployeeAccount_1 employee employer = do
 
    submit employer do
         createCmd EmployeeAccount with
@@ -33,6 +36,23 @@ setupEmployeeAccount employee employer = do
                 lastName = "Anderson"
                 education = "Master"
             salary = 80.0
+            vacationDays = 10
+            onVacation = False
+            requestedVacationTime = False
+
+
+setupEmployeeAccount_2: Party-> Party -> Script EmployeeAccountId
+setupEmployeeAccount_2 employee employer = do
+
+   submit employer do
+        createCmd EmployeeAccount with
+            employee = employee
+            employer = employer
+            applicantInformation = PersonalInformation with
+                name = "Bruce"
+                lastName = "Wayne"
+                education = "Bachelor"
+            salary = 60.0
             vacationDays = 10
             onVacation = False
             requestedVacationTime = False

@@ -7,18 +7,21 @@ import PartiesSetUp
 setup: Script ()
 setup = do
 
-    testParties@TestParties{applicant, oldEmployee, employer} <- setupParties
+    testParties@TestParties{applicant, oldEmployee_1, oldEmployee_2, employer} <- setupParties
     application <- setupApplication applicant employer
-    oldEmployeeAccount <- setupEmployeeAccount oldEmployee employer
+    oldEmployeeAccount_1 <- setupEmployeeAccount_1 oldEmployee_1 employer
+    oldEmployeeAccount_2 <- setupEmployeeAccount_2 oldEmployee_2 employer
     services <- setupEmployerServices employer
 
     applicantId <- validateUserId "Alice"
     employerId <- validateUserId "Boss"
-    oldEmployeeId <- validateUserId "Bob"
+    oldEmployeeId_1 <- validateUserId "Bob"
+    oldEmployeeId_2 <- validateUserId "Bruce"
 
     createUser (User applicantId (Some applicant)) [CanActAs applicant]
     createUser (User employerId (Some employer)) [CanActAs employer]
-    createUser (User oldEmployeeId (Some oldEmployee)) [CanActAs oldEmployee]
+    createUser (User oldEmployeeId_1 (Some oldEmployee_1)) [CanActAs oldEmployee_1]
+    createUser (User oldEmployeeId_2 (Some oldEmployee_2)) [CanActAs oldEmployee_2]
 
     return ()
 

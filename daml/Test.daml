@@ -9,9 +9,9 @@ import PartiesSetUp
 test_setSalary: Script ()
 test_setSalary = script do
 
-    testParties@TestParties{applicant, oldEmployee, employer} <- setupParties
+    testParties@TestParties{applicant, oldEmployee_1, oldEmployee_2, employer} <- setupParties
     application <- setupApplication applicant employer
-    oldEmployeeAccount <- setupEmployeeAccount oldEmployee employer
+    oldEmployeeAccount <- setupEmployeeAccount_1 oldEmployee_1 employer
 
     application <- submit employer do
         exerciseCmd application MakeAnOffer with salary=100.0
@@ -30,19 +30,53 @@ test_setSalary = script do
 
     return ()
 
--- test request for vacation by employee
-test_resquestVacation: Script ()
-test_resquestVacation = script do
+-- Auxilary function to review vacation request.
+-- If there is more than 1 employees available then the
+-- vacation request is accepted
+reviewVacationRequest: Party -> EmployeeAccountId -> Script EmployeeAccountId
+reviewVacationRequest employer accountId = do
 
-    testParties@TestParties{applicant, oldEmployee, employer} <- setupParties
+    availableEmployees <- queryFilter @EmployeeAccount employer (\ eAccount -> not (eAccount.onVacation))
+    let numAvailableEmployees = length availableEmployees
+
+    if (numAvailableEmployees > 1) then do 
+        debug $ "Request for vacations accepted"
+        submit employer do
+            exerciseCmd accountId AcceptVacationRequest
+    else do 
+        debug $ "Request for vacations denied"
+        submit employer do
+            exerciseCmd accountId RejectVacationRequest
+
+-- test request for vacation by employee denied
+test_resquestVacationDenied: Script ()
+test_resquestVacationDenied = script do
+
+    testParties@TestParties{applicant, oldEmployee_1, oldEmployee_2, employer} <- setupParties
     application <- setupApplication applicant employer
-    oldEmployeeAccount <- setupEmployeeAccount oldEmployee employer
+    oldEmployeeAccount <- setupEmployeeAccount_1 oldEmployee_1 employer
 
-    oldEmployeeAccount <- submit oldEmployee do
+    oldEmployeeAccount <- submit oldEmployee_1 do
         exerciseCmd oldEmployeeAccount RequestVacation
 
-    oldEmployeeAccount <- submit employer do
-        exerciseCmd oldEmployeeAccount ReviewVacationRequest
+    oldEmployeeAccount <- reviewVacationRequest employer oldEmployeeAccount
+
+    return ()
+
+
+-- test request for vacation by employee accepted
+test_resquestVacationAccepted: Script ()
+test_resquestVacationAccepted = script do
+
+    testParties@TestParties{applicant, oldEmployee_1, oldEmployee_2, employer} <- setupParties
+    application <- setupApplication applicant employer
+    oldEmployeeAccount_1 <- setupEmployeeAccount_1 oldEmployee_1 employer
+    oldEmployeeAccount_2 <- setupEmployeeAccount_2 oldEmployee_2 employer
+
+    oldEmployeeAccount_1 <- submit oldEmployee_1 do
+        exerciseCmd oldEmployeeAccount_1 RequestVacation
+
+    oldEmployeeAccount <- reviewVacationRequest employer oldEmployeeAccount_1
 
     return ()
 
@@ -51,15 +85,15 @@ test_resquestVacation = script do
 test_multipleEmployees: Script ()
 test_multipleEmployees = script do
 
-    testParties@TestParties{applicant, oldEmployee, employer} <- setupParties
+    testParties@TestParties{applicant, oldEmployee_1, oldEmployee_2, employer} <- setupParties
     application <- setupApplication applicant employer
-    oldEmployeeAccount <- setupEmployeeAccount oldEmployee employer
+    oldEmployeeAccount <- setupEmployeeAccount_1 oldEmployee_1 employer
 
     services <- submit employer do
         createCmd EmployerServices with
             employer = employer
 
     submit employer do 
-        exerciseCmd services FireEmployee with employee=oldEmployee
+        exerciseCmd services FireEmployee with employee=oldEmployee_1
 
     return ()
