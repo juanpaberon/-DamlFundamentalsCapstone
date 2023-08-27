@@ -28,6 +28,10 @@ setupEmployeeAccount employee employer = do
         createCmd EmployeeAccount with
             employee = employee
             employer = employer
+            applicantInformation = PersonalInformation with
+                name = "Bob"
+                lastName = "Anderson"
+                education = "Master"
             salary = 80.0
             vacationDays = 10
             onVacation = False
@@ -49,3 +53,10 @@ setupApplication applicant employer = do
                 education = "Master"
             acceptedOfferApplicant = False
             acceptedOfferEmployer = False
+
+
+setupEmployerServices: Party -> Script (ContractId EmployerServices)
+setupEmployerServices employer = do
+    submit employer do
+        createCmd EmployerServices with
+            employer = employer

@@ -3,12 +3,14 @@ module Main where
 import Daml.Script
 import PartiesSetUp
 
+-- setup script for navigator
 setup: Script ()
 setup = do
 
     testParties@TestParties{applicant, oldEmployee, employer} <- setupParties
     application <- setupApplication applicant employer
     oldEmployeeAccount <- setupEmployeeAccount oldEmployee employer
+    services <- setupEmployerServices employer
 
     applicantId <- validateUserId "Alice"
     employerId <- validateUserId "Boss"

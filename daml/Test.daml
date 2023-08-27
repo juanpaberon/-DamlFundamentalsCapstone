@@ -4,6 +4,8 @@ import Daml.Script
 import Employees
 import PartiesSetUp
 
+
+--Test negotiation of salary between an applicant and the employer.
 test_setSalary: Script ()
 test_setSalary = script do
 
@@ -28,7 +30,7 @@ test_setSalary = script do
 
     return ()
 
-
+-- test request for vacation by employee
 test_resquestVacation: Script ()
 test_resquestVacation = script do
 
@@ -45,5 +47,19 @@ test_resquestVacation = script do
     return ()
 
 
-    -- submitMustFail employer do
-    --     exerciseCmd employeeAccount ReviewVacationRequest
+-- test firing an employee
+test_multipleEmployees: Script ()
+test_multipleEmployees = script do
+
+    testParties@TestParties{applicant, oldEmployee, employer} <- setupParties
+    application <- setupApplication applicant employer
+    oldEmployeeAccount <- setupEmployeeAccount oldEmployee employer
+
+    services <- submit employer do
+        createCmd EmployerServices with
+            employer = employer
+
+    submit employer do 
+        exerciseCmd services FireEmployee with employee=oldEmployee
+
+    return ()

@@ -1,14 +1,14 @@
 module Employees where
 
+
 data PersonalInformation = PersonalInformation with
     name: Text
     lastName: Text
     education: Text
         deriving(Eq, Show)
 
-
+-- Contract to record the application process of a potential new employee
 type ApplicationId = ContractId NewEmployeeApplication
-
 template NewEmployeeApplication
     with
         newApplicant: Party
@@ -68,19 +68,21 @@ template NewEmployeeApplication
             do create EmployeeAccount with
                 employee = newApplicant
                 employer = employer
+                applicantInformation = applicantInformation
                 salary = salary
                 vacationDays = 10
                 onVacation = False
                 requestedVacationTime = False
 
 
+-- Contract to manage the state of employees i.e. if they on vacation or not and who they are.
 type EmployeeAccountId = ContractId EmployeeAccount
-
 template EmployeeAccount
     with
         employee: Party
         employer: Party
         salary: Numeric 2
+        applicantInformation: PersonalInformation
         vacationDays: Int
         onVacation: Bool
         requestedVacationTime: Bool
@@ -104,3 +106,17 @@ template EmployeeAccount
                 create this with
                     requestedVacationTime = False
                     onVacation = True
+
+-- Contract for multiple services for the employer. Right now is only to fire employees
+template EmployerServices
+    with
+        employer: Party
+    where
+        signatory employer
+
+        nonconsuming choice FireEmployee: ()
+            with employee: Party
+            controller employer
+            do
+                employeeAccountCid <- fetchByKey @EmployeeAccount (employer, employee)
+                archive employeeAccountCid._1 
