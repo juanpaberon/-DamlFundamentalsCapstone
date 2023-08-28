@@ -60,8 +60,8 @@ reviewVacationRequest employer accountId = do
 
 -- Happy path
 -- test request for vacation by employee denied
-test_resquestVacationDenied: Script ()
-test_resquestVacationDenied = script do
+test_requestVacationDenied: Script ()
+test_requestVacationDenied = script do
 
     testParties@TestParties{applicant, oldEmployee_1, oldEmployee_2, employer} <- setupParties
     application <- setupApplication applicant employer
@@ -76,8 +76,8 @@ test_resquestVacationDenied = script do
 
 -- Happy path
 -- test request for vacation by employee accepted
-test_resquestVacationAccepted: Script ()
-test_resquestVacationAccepted = script do
+test_requestVacationAccepted: Script ()
+test_requestVacationAccepted = script do
 
     testParties@TestParties{applicant, oldEmployee_1, oldEmployee_2, employer} <- setupParties
     application <- setupApplication applicant employer
@@ -106,5 +106,57 @@ test_multipleEmployees = script do
 
     submit employer do 
         exerciseCmd services FireEmployee with employee=oldEmployee_1
+
+    return ()
+
+-- Unhappy path
+-- Test negotiation of salary between an applicant and the employer.
+-- Employer tries to review application before applicant is ready
+test_earlyReviewSalary: Script ()
+test_earlyReviewSalary = script do
+
+    testParties@TestParties{applicant, oldEmployee_1, oldEmployee_2, employer} <- setupParties
+    application <- setupApplication applicant employer
+    oldEmployeeAccount <- setupEmployeeAccount_1 oldEmployee_1 employer
+
+    -- first employer offer
+    application <- submit employer do
+        exerciseCmd application MakeAnOffer with salary=100.0
+
+    -- ReviewApplication must happen after AcceptOfferApplicant
+    employeeAccount <- submitMustFail employer do
+        exerciseCmd application ReviewApplication
+
+    return ()
+
+
+-- Unhappy path
+-- test denied vacation request when no employee request
+test_deniedVacationNoRequest: Script ()
+test_deniedVacationNoRequest = script do
+
+    testParties@TestParties{applicant, oldEmployee_1, oldEmployee_2, employer} <- setupParties
+    application <- setupApplication applicant employer
+    oldEmployeeAccount_1 <- setupEmployeeAccount_1 oldEmployee_1 employer
+    oldEmployeeAccount_2 <- setupEmployeeAccount_2 oldEmployee_2 employer
+
+    oldEmployeeAccount_1 <- submitMustFail employer do
+        exerciseCmd oldEmployeeAccount_1 RejectVacationRequest
+
+    return ()
+
+
+-- Unhappy path
+-- test accept vacation request when no employee request
+test_acceptVacationNoRequest: Script ()
+test_acceptVacationNoRequest = script do
+
+    testParties@TestParties{applicant, oldEmployee_1, oldEmployee_2, employer} <- setupParties
+    application <- setupApplication applicant employer
+    oldEmployeeAccount_1 <- setupEmployeeAccount_1 oldEmployee_1 employer
+    oldEmployeeAccount_2 <- setupEmployeeAccount_2 oldEmployee_2 employer
+
+    oldEmployeeAccount_1 <- submitMustFail employer do
+        exerciseCmd oldEmployeeAccount_1 AcceptVacationRequest
 
     return ()
