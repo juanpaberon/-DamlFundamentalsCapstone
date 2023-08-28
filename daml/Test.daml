@@ -5,6 +5,8 @@ import Employees
 import PartiesSetUp
 
 
+-- Employer and applicants interaction workflow
+
 -- Happy path
 -- Test negotiation of salary between an applicant and the employer.
 test_setSalary: Script ()
@@ -13,6 +15,14 @@ test_setSalary = script do
     testParties@TestParties{applicant, oldEmployee_1, oldEmployee_2, employer} <- setupParties
     application <- setupApplication applicant employer
     oldEmployeeAccount <- setupEmployeeAccount_1 oldEmployee_1 employer
+
+    -- applicant edits information
+    application <- submit applicant do
+        exerciseCmd application EditApplicationInformation with
+            name = "Elice"
+            lastName = "Smith"
+            education = "Master"
+            positionName = "SWE"
 
     -- first employer offer
     application <- submit employer do
@@ -36,7 +46,10 @@ test_setSalary = script do
 
     return ()
 
--- Auxilary function to review vacation request.
+
+-- Employer and employee interaction workflow
+
+-- auxiliary function to review vacation request.
 -- If there is more than 1 employees available then the
 -- vacation request is accepted. If there are no employees, then it returns none
 reviewVacationRequest: Party -> EmployeeAccountId -> Script (Optional EmployeeAccountId)
