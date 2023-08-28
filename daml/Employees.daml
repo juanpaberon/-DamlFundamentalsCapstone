@@ -17,7 +17,6 @@ template NewEmployeeApplication
         salary: Numeric 2
         applicantInformation: PersonalInformation
         acceptedOfferApplicant: Bool
-        acceptedOfferEmployer: Bool
     where
         signatory newApplicant
         observer employer
@@ -25,7 +24,8 @@ template NewEmployeeApplication
 
         key (employer, newApplicant): (Party, Party)
         maintainer key._2
-
+        
+        -- The applicant can change the personal information of an application
         choice EditApplicationInformation: ApplicationId
             with
                 name: Text
@@ -40,39 +40,45 @@ template NewEmployeeApplication
                 create this with
                     applicantInformation = newPersonalInformation
 
+        -- Employer will make an offer (salary) to the applicant.
+        -- Can be used to respond a counteroffer from the applicant.
         choice MakeAnOffer: ApplicationId
             with
                 salary: Numeric 2
             controller employer
             do create this with
                 salary = salary
-                acceptedOfferEmployer = True
                 acceptedOfferApplicant = False
 
+        -- applicant accepts an offer from the employer
         choice AcceptOfferApplicant: ApplicationId
             controller newApplicant
             do create this with
                 acceptedOfferApplicant = True
 
+        -- applicant makes a counter offer to the offer of the employer
         choice CounterOfferApplicant: ApplicationId
             with
                 salary: Numeric 2
             controller newApplicant
             do create this with
                 salary = salary
-                acceptedOfferEmployer = False
                 acceptedOfferApplicant = True
 
+        -- employer creates an employee account from the application information once
+        -- the applicant has accepted the offer
         choice ReviewApplication: EmployeeAccountId
             controller employer
-            do create EmployeeAccount with
-                employee = newApplicant
-                employer = employer
-                applicantInformation = applicantInformation
-                salary = salary
-                vacationDays = 10
-                onVacation = False
-                requestedVacationTime = False
+            do
+                assertMsg "Employee has not accepted the offer" acceptedOfferApplicant
+                create EmployeeAccount with
+                    employee = newApplicant
+                    employer = employer
+                    applicantInformation = applicantInformation
+                    salary = salary
+                    vacationDays = 10
+                    onVacation = False
+                    requestedVacationTime = False
 
 
 -- Contract to manage the state of employees i.e. if they on vacation or not and who they are.
@@ -94,11 +100,13 @@ template EmployeeAccount
         key (employer, employee): (Party, Party)
         maintainer key._1
 
+        -- employee request vacation
         choice RequestVacation: EmployeeAccountId
             controller employee
             do create this with
                 requestedVacationTime = True
 
+        -- employer accepts the vacation request from the employee
         choice AcceptVacationRequest: EmployeeAccountId
             controller employer
             do
@@ -107,6 +115,7 @@ template EmployeeAccount
                     requestedVacationTime = False
                     onVacation = True
 
+        -- employer rejects the vacation request from the employee
         choice RejectVacationRequest: EmployeeAccountId
             controller employer
             do
@@ -122,6 +131,7 @@ template EmployerServices
     where
         signatory employer
 
+        -- archives an employee account
         nonconsuming choice FireEmployee: ()
             with employee: Party
             controller employer

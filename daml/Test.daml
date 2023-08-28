@@ -5,7 +5,8 @@ import Employees
 import PartiesSetUp
 
 
---Test negotiation of salary between an applicant and the employer.
+-- Happy path
+-- Test negotiation of salary between an applicant and the employer.
 test_setSalary: Script ()
 test_setSalary = script do
 
@@ -13,18 +14,23 @@ test_setSalary = script do
     application <- setupApplication applicant employer
     oldEmployeeAccount <- setupEmployeeAccount_1 oldEmployee_1 employer
 
+    -- first employer offer
     application <- submit employer do
         exerciseCmd application MakeAnOffer with salary=100.0
 
+    -- counter offer by the applicant
     application <- submit applicant do
         exerciseCmd application CounterOfferApplicant with salary=120.00
 
+    -- second employer offer
     application <- submit employer do
         exerciseCmd application MakeAnOffer with salary=110.0
 
+    -- applicant accepts the last offer
     application <- submit applicant do
         exerciseCmd application AcceptOfferApplicant
 
+    -- employer hires the applicant by creating an employee account
     employeeAccount <- submit employer do
         exerciseCmd application ReviewApplication
 
@@ -52,6 +58,7 @@ reviewVacationRequest employer accountId = do
                 exerciseCmd accountId RejectVacationRequest
             return (Some accountId)
 
+-- Happy path
 -- test request for vacation by employee denied
 test_resquestVacationDenied: Script ()
 test_resquestVacationDenied = script do
@@ -67,7 +74,7 @@ test_resquestVacationDenied = script do
 
     return ()
 
-
+-- Happy path
 -- test request for vacation by employee accepted
 test_resquestVacationAccepted: Script ()
 test_resquestVacationAccepted = script do
@@ -84,7 +91,7 @@ test_resquestVacationAccepted = script do
 
     return ()
 
-
+-- Happy path
 -- test firing an employee
 test_multipleEmployees: Script ()
 test_multipleEmployees = script do
