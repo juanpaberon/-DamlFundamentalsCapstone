@@ -3,6 +3,10 @@ Daml templates designed to manage the interaction of an employer, employees and 
 
 ## I. Overview
 Applicants can fill up applications and interact with the employer to agree with a salary. Employees can request vacation and the employer desides to approve the request or not. Employer can fire employees.
+- Templates are located in `daml/Employees.daml`
+- Test script are located in `daml/Test.daml`
+- Initialization scripts for test are in `daml/PartiesSetUp.daml`
+- Initialization for navigator is in `daml/Main.daml`
 
 ## II. Workflow
 
@@ -19,6 +23,8 @@ Applicants can fill up applications and interact with the employer to agree with
 2. Employer can either deny the vacation request or accept it.
 3. If it is accepted, then the employee's account will have True in its onVacation, otherwise it will have False.
 For the test scripts there an auxiliary function that reviews if there will be other employees available if the vacation request is accepted. If there would be at least one more employee available, then the vacation request will be accepted.
+
+[Video working project](https://youtu.be/fynFx02APDQ)
 
 ## III. Testing
 To test all scripts:
